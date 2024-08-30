@@ -1,26 +1,10 @@
 from scapy.all import *
 from colorama import Fore, Style, init
 import speedtest
-import os
 import subprocess
 
 # Inisialisasi Colorama
 init(autoreset=True)
-
-# Teks besar dengan karakter ASCII
-def print_title(text, color=Fore.GREEN):
-    lines = [
-        f" {color} ____  _               __      _______ _       {Style.RESET_ALL}",
-        f" {color}|  _ \\| |              \\ \\    / /__   __| |      {Style.RESET_ALL}",
-        f" {color}| |_) | |_   _  ___  ___\\ \\  / /   | |  | |_ __  {Style.RESET_ALL}",
-        f" {color}|  _ <| | | | |/ _ \\/ __|\\ \\/ /    | |  | | '_ \\ {Style.RESET_ALL}",
-        f" {color}| |_) | | |_| |  __/\\__ \\ \\  /     | |__| | |_) |{Style.RESET_ALL}",
-        f" {color}|____/|_|\\__,_|\\___||___/  \\/       \\____/| .__/ {Style.RESET_ALL}",
-        f" {color}                                          | |    {Style.RESET_ALL}",
-        f" {color}                                          |_|    {Style.RESET_ALL}",
-    ]
-    for line in lines:
-        print(line)
 
 # Fungsi untuk menangani paket Beacon Frame yang diterima
 def packet_handler(packet):
@@ -78,10 +62,9 @@ def test_internet_speed():
     print(f"Ping: {ping} ms")
 
 def main_menu():
-    print_title("Danvertt Wifi Tools")
-    
     while True:
-        print("\nMenu:")
+        print("\nDanvertt Wifi Tools")
+        print("Menu:")
         print("1. Start Mode Monitor")
         print("2. Stop Mode Monitor")
         print("3. Wifi Detection")
