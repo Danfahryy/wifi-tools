@@ -2,6 +2,7 @@ from scapy.all import *
 from colorama import Fore, Style, init
 import speedtest
 import subprocess
+import sys
 
 # Inisialisasi Colorama
 init(autoreset=True)
@@ -27,6 +28,8 @@ def start_monitor_mode():
         print(f"Interface {interface} has been switched to monitor mode.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to start monitor mode: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def stop_monitor_mode():
     try:
@@ -37,6 +40,8 @@ def stop_monitor_mode():
         print(f"Monitor mode has been stopped and {interface} has been restored.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to stop monitor mode: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def scan_wifi(duration=10):
     try:
@@ -44,6 +49,8 @@ def scan_wifi(duration=10):
         sniff(iface=interface, prn=packet_handler, timeout=duration)
     except PermissionError:
         print("Permission denied: Ensure you are running with administrative rights.")
+    except OSError as e:
+        print(f"An OS error occurred: {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -99,4 +106,5 @@ def main_menu():
             print("Invalid choice. Please select 1 through 6.")
 
 # Menjalankan menu utama
-main_menu()
+if __name__ == "__main__":
+    main_menu()
