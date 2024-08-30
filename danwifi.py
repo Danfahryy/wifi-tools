@@ -1,22 +1,23 @@
 from scapy.all import *
 from colorama import Fore, Style, init
 import speedtest
-import time
+import os
+import subprocess
 
 # Inisialisasi Colorama
 init(autoreset=True)
 
 # Teks besar dengan karakter ASCII
-def print_large_text(text, color=Fore.GREEN):
+def print_title(text, color=Fore.GREEN):
     lines = [
-        f" {color}______ _                 __   __ _             _        {Style.RESET_ALL}",
-        f" {color}|  ____| |                \\ \\ / /| |           | |       {Style.RESET_ALL}",
-        f" {color}| |__   | | ___   ___  ___  \\ V / | | ___   ___ | |_ ___  {Style.RESET_ALL}",
-        f" {color}|  __|  | |/ _ \\ / _ \\/ _ \\  \\ /  | |/ _ \\ / _ \\| __/ _ \\ {Style.RESET_ALL}",
-        f" {color}| |____ | | (_) |  __/  __/  | |   | | (_) | (_) | ||  __/ {Style.RESET_ALL}",
-        f" {color}|______||_|\\___/ \\___|\\___|  |_|   |_|\\___/ \\___/ \\__\\___| {Style.RESET_ALL}",
-        f" {color}                                                               {Style.RESET_ALL}",
-        f" {color}                                                               {Style.RESET_ALL}",
+        f" {color} ____  _               __      _______ _       {Style.RESET_ALL}",
+        f" {color}|  _ \\| |              \\ \\    / /__   __| |      {Style.RESET_ALL}",
+        f" {color}| |_) | |_   _  ___  ___\\ \\  / /   | |  | |_ __  {Style.RESET_ALL}",
+        f" {color}|  _ <| | | | |/ _ \\/ __|\\ \\/ /    | |  | | '_ \\ {Style.RESET_ALL}",
+        f" {color}| |_) | | |_| |  __/\\__ \\ \\  /     | |__| | |_) |{Style.RESET_ALL}",
+        f" {color}|____/|_|\\__,_|\\___||___/  \\/       \\____/| .__/ {Style.RESET_ALL}",
+        f" {color}                                          | |    {Style.RESET_ALL}",
+        f" {color}                                          |_|    {Style.RESET_ALL}",
     ]
     for line in lines:
         print(line)
@@ -31,11 +32,37 @@ def packet_handler(packet):
 
 # Daftar untuk menyimpan SSID dan BSSID yang terdeteksi
 networks = {}
+interface = 'wlan0'  # Nama interface jaringan
 
-# Menangkap paket selama 10 detik
+def start_monitor_mode():
+    try:
+        # Mengaktifkan mode monitor menggunakan airmon-ng
+        subprocess.run(['sudo', 'airmon-ng', 'start', interface], check=True)
+        print(f"Interface {interface} has been switched to monitor mode.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to start monitor mode: {e}")
+
+def stop_monitor_mode():
+    try:
+        # Menghentikan mode monitor dan mengembalikan ke mode normal
+        subprocess.run(['sudo', 'airmon-ng', 'stop', interface + 'mon'], check=True)
+        print(f"Monitor mode has been stopped and {interface} has been restored.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to stop monitor mode: {e}")
+
 def scan_wifi(duration=10):
-    print(f"Scanning for {duration} seconds...")
-    sniff(prn=packet_handler, timeout=duration)
+    try:
+        print(f"Scanning for {duration} seconds on interface {interface}...")
+        sniff(iface=interface, prn=packet_handler, timeout=duration)
+    except PermissionError:
+        print("Permission denied: Ensure you are running with administrative rights.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def test_wifi_speed():
+    print("Testing WiFi speed. Please wait...")
+    # Test speed logic here. Placeholder for demonstration.
+    print("WiFi Speed Test functionality is not implemented yet.")
 
 def test_internet_speed():
     print("Testing internet speed. Please wait...")
@@ -51,28 +78,38 @@ def test_internet_speed():
     print(f"Ping: {ping} ms")
 
 def main_menu():
+    print_title("Danvertt Wifi Tools")
+    
     while True:
         print("\nMenu:")
-        print("1. Wifi Detection")
-        print("2. Test Kecepatan Jaringan")
-        print("3. Quit")
+        print("1. Start Mode Monitor")
+        print("2. Stop Mode Monitor")
+        print("3. Wifi Detection")
+        print("4. Test Wifi Speed")
+        print("5. Test Internet Speed")
+        print("6. Quit")
 
-        choice = input("Enter your choice (1, 2, or 3): ").strip()
+        choice = input("Enter your choice (1-6): ").strip()
 
         if choice == '1':
-            print_large_text("Danvert")
+            start_monitor_mode()
+        elif choice == '2':
+            stop_monitor_mode()
+        elif choice == '3':
             scan_wifi()
             print("\nDetected WiFi Networks:")
             for idx, (ssid, bssid) in enumerate(networks.items(), start=1):
                 print(f"{idx}. SSID: {ssid}, BSSID: {bssid}")
             networks.clear()  # Clear networks list after displaying
-        elif choice == '2':
+        elif choice == '4':
+            test_wifi_speed()
+        elif choice == '5':
             test_internet_speed()
-        elif choice == '3':
+        elif choice == '6':
             print("Keluar dari program")
             break
         else:
-            print("Invalid choice. Please select 1, 2, or 3.")
+            print("Invalid choice. Please select 1 through 6.")
 
 # Menjalankan menu utama
 main_menu()
