@@ -16,20 +16,24 @@ def packet_handler(packet):
 
 # Daftar untuk menyimpan SSID dan BSSID yang terdeteksi
 networks = {}
-interface = 'wlan0'  # Nama interface jaringan
+interface = 'wlp2s0'  # Ganti dengan nama interface yang sesuai
 
 def start_monitor_mode():
     try:
-        # Mengaktifkan mode monitor menggunakan airmon-ng
-        subprocess.run(['sudo', 'airmon-ng', 'start', interface], check=True)
+        # Menggunakan iw untuk mengaktifkan mode monitor
+        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'down'], check=True)
+        subprocess.run(['sudo', 'iw', 'dev', interface, 'set', 'type', 'monitor'], check=True)
+        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'up'], check=True)
         print(f"Interface {interface} has been switched to monitor mode.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to start monitor mode: {e}")
 
 def stop_monitor_mode():
     try:
-        # Menghentikan mode monitor dan mengembalikan ke mode normal
-        subprocess.run(['sudo', 'airmon-ng', 'stop', interface + 'mon'], check=True)
+        # Mengembalikan mode interface ke mode normal
+        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'down'], check=True)
+        subprocess.run(['sudo', 'iw', 'dev', interface, 'set', 'type', 'managed'], check=True)
+        subprocess.run(['sudo', 'ip', 'link', 'set', interface, 'up'], check=True)
         print(f"Monitor mode has been stopped and {interface} has been restored.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to stop monitor mode: {e}")
